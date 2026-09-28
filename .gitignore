@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+.env
+sent_cache.json
+*.log
+.DS_Store
