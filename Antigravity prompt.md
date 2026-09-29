@@ -10,7 +10,7 @@ hosting: free-forever
 language: en-hi-bilingual
 ---
 
-# 🔥 MYSTERYDIGEST PRO — GOD-LEVEL UPGRADE PROMPT
+# 🔥 MYSTERYDIGEST PRO — GOD-LEVEL UPGRADE PROMPT [copy paste all 👇 prompt]
 
 ## 🧠 ROLE
 
