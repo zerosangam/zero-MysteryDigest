@@ -1,10 +1,17 @@
-name: MysteryDigest Daily
+name: MysteryDigest Daily (LEGACY v1 — Disabled)
+
+# ═══════════════════════════════════════════════════════════
+# This is the ORIGINAL v1 workflow, preserved for reference.
+# Daily emails are now DISABLED. Emails only go out on Sunday.
+# The active workflows are:
+#   - research-cycle.yml (every 30 min, Mon-Sat)
+#   - daily-lockin.yml (11:59 PM IST, Mon-Sat)
+#   - sunday-email.yml (Sunday 06:00 AM IST — the ONLY email)
+# ═══════════════════════════════════════════════════════════
 
 on:
-  schedule:
-    # 06:00 AM IST = 00:30 UTC (IST is UTC+5:30)
-    - cron: '30 0 * * *'
-  workflow_dispatch: # Allow manual trigger from Actions tab
+  # schedule REMOVED — no more daily emails
+  workflow_dispatch: # Keep manual trigger for backward-compat testing
 
 jobs:
   send-digest:
@@ -30,12 +37,12 @@ jobs:
           restore-keys: |
             mystery-cache-
 
-      - name: Run MysteryDigest
+      - name: Run MysteryDigest (Legacy v1)
         env:
           GMAIL_USER: ${{ secrets.GMAIL_USER }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
           RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}
-        run: python main.py
+        run: python main.py --test
 
       - name: Save dedup cache
         if: always()

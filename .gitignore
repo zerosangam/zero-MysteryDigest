@@ -4,3 +4,5 @@ __pycache__/
 sent_cache.json
 *.log
 .DS_Store
+data/*.json
+!data/.gitkeep

@@ -1,0 +1,63 @@
+name: MysteryDigest 30-Min Research Cycle
+
+on:
+  schedule:
+    # Every 30 minutes, Monday through Saturday (days 1-6)
+    - cron: '*/30 * * * 1-6'
+  workflow_dispatch:  # Manual trigger
+
+jobs:
+  research-cycle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Restore database cache
+        uses: actions/cache@v4
+        with:
+          path: data/
+          key: mystery-data-${{ github.run_number }}
+          restore-keys: |
+            mystery-data-
+
+      - name: Restore legacy cache
+        uses: actions/cache@v4
+        with:
+          path: sent_cache.json
+          key: mystery-legacy-${{ github.run_number }}
+          restore-keys: |
+            mystery-legacy-
+
+      - name: Run 30-minute research cycle
+        env:
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}
+        run: python main.py --cycle
+
+      - name: Save database cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: data/
+          key: mystery-data-${{ github.run_number }}
+
+      - name: Commit dashboard
+        if: always()
+        run: |
+          git config user.name "MysteryDigest Bot"
+          git config user.email "bot@mysterydigest.local"
+          git add docs/ data/ || true
+          git diff --cached --quiet || git commit -m "Update dashboard and data [skip ci]" || true
+          git push || true

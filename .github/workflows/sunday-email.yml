@@ -1,0 +1,64 @@
+name: MysteryDigest Sunday Viral Email
+
+on:
+  schedule:
+    # Sunday 06:00 AM IST = Sunday 00:30 UTC
+    - cron: '30 0 * * 0'
+  workflow_dispatch:
+
+jobs:
+  sunday-email:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Restore database
+        uses: actions/cache@v4
+        with:
+          path: data/
+          key: mystery-data-${{ github.run_number }}
+          restore-keys: |
+            mystery-data-
+
+      - name: Restore legacy cache
+        uses: actions/cache@v4
+        with:
+          path: sent_cache.json
+          key: mystery-legacy-${{ github.run_number }}
+          restore-keys: |
+            mystery-legacy-
+
+      - name: Run Sunday comparison and email
+        env:
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}
+        run: python main.py --sunday
+
+      - name: Save database
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: data/
+          key: mystery-data-${{ github.run_number }}
+
+      - name: Update dashboard and commit
+        if: always()
+        run: |
+          python main.py --dashboard || true
+          git config user.name "MysteryDigest Bot"
+          git config user.email "bot@mysterydigest.local"
+          git add docs/ data/ || true
+          git diff --cached --quiet || git commit -m "Sunday update [skip ci]" || true
+          git push || true
