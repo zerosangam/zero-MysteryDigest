@@ -4,19 +4,19 @@ on:
   schedule:
     # Every 30 minutes, Monday through Saturday (days 1-6)
     - cron: '*/30 * * * 1-6'
-  workflow_dispatch:  # Manual trigger
+  workflow_dispatch:  # Manual trigger (optional, chhod sakte ho)
 
 jobs:
   research-cycle:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.11'
 
@@ -24,7 +24,7 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Restore database cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: data/
           key: mystery-data-${{ github.run_number }}
@@ -32,7 +32,7 @@ jobs:
             mystery-data-
 
       - name: Restore legacy cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: sent_cache.json
           key: mystery-legacy-${{ github.run_number }}
@@ -48,7 +48,7 @@ jobs:
 
       - name: Save database cache
         if: always()
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         with:
           path: data/
           key: mystery-data-${{ github.run_number }}
